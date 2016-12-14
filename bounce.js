@@ -17,13 +17,13 @@ void function(namespace) {
         function Game(canvas) {
             $.canvas = canvas;
             $.context = canvas.getContext("2d");
-            $.started = false;
+            $.running = false;
             $.timeout = null;
             $.counter = 0;
         }
 
         Game.prototype.input = function (keyCode) {
-            if (!$.started) return;
+            if (!$.running) return;
             switch (keyCode) {
                 case 38:
                     $.player.move({i:0, j:$.player.size().h/2});
@@ -42,7 +42,7 @@ void function(namespace) {
         Game.prototype.start = function () {
             const REFRESH_RATE = 1000/60;
 
-            if ($.started) return;
+            if ($.running) return;
 
             $.ball = new Ball({x: $.canvas.width/2, y: $.canvas.height/2}, {w: 10, h: 10}, {x: $.canvas.width, y: $.canvas.height});
             $.player = new Player({x: 0, y: ($.canvas.height - 100)/2}, {w: 10, h: 100}, {x: $.canvas.width, y: $.canvas.height});
@@ -63,19 +63,21 @@ void function(namespace) {
             $.timeout = setTimeout(f, REFRESH_RATE);
 
             $.ball.launch();
+            $.running = true;
+        };
 
-            $.started = true;
+        Game.prototype.stop = function () {
+            $.ball.stop();
+            $.running = false;
         };
 
         Game.prototype.update = function () {
             $.ball.update();
             if (this.scored()) {
-                $.ball.stop();
-                $.started = false;
+                this.stop();
             } else {
                 $.text.update($.ball.bounces().toString());
             }
-
             paint();
         };
 

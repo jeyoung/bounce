@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script type="text/javascript" src="bounce.js"></script>
+        <script type="text/javascript">
+window.addEventListener("load", function (event) {
+    let game = new ns.Game(document.getElementById("gameCanvas"));
+
+    window.addEventListener("click", function (event) {
+        game.start();
+    });
+
+    window.addEventListener("keydown", function (event) {
+        game.input(event.keyCode);
+    });
+
+});
+        </script>
+        <style type="text/css">
+#gameCanvas { border: 1px solid gray; }
+        </style>
+    </head>
+    <body>
+        <canvas id="gameCanvas" height="400" width="600"></canvas>
+    </body>
+</html>

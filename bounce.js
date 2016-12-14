@@ -99,7 +99,7 @@ void function(namespace) {
 
         Ball.prototype.draw = function (context) {
             context.fillStyle = "rgba(5, 125, 250, 0.5)";
-            context.fillRect($.position.x-($.size.w/2), $.position.y-($.size.h/2), $.size.w, $.size.h);
+            context.fillRect($.position.x - ($.size.w/2), $.position.y - ($.size.h/2), $.size.w, $.size.h);
         };
 
         Ball.prototype.launch = function () {
@@ -183,10 +183,10 @@ void function(namespace) {
         }
 
         Text.prototype.draw = function (context) {
-            let l = context.measureText($.s);
+            let m = context.measureText($.s);
             context.font = $.font;
             context.fillStyle = "rgba(255, 0, 0, 0.5)";
-            context.fillText($.s, $.position.x - (l.width/2), $.position.y);
+            context.fillText($.s, $.position.x - (m.width/2), $.position.y);
         };
 
         Text.prototype.update = function (s) {

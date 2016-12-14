@@ -46,7 +46,7 @@ void function(namespace) {
 
             $.ball = new Ball({x: $.canvas.width/2, y: $.canvas.height/2}, {w: 10, h: 10}, {x: $.canvas.width, y: $.canvas.height});
             $.player = new Player({x: 0, y: ($.canvas.height - 100)/2}, {w: 10, h: 100}, {x: $.canvas.width, y: $.canvas.height});
-            $.text = new Text($.counter.toString(), "48px arial", {x:$.canvas.width/2, y:50});
+            $.text = new Text($.counter.toString(), "36px arial", {x:$.canvas.width/2, y:50});
 
 
             // prevent multiple timeout handlers from running at the same
@@ -98,7 +98,7 @@ void function(namespace) {
         };
 
         Ball.prototype.draw = function (context) {
-            context.fillColor = "rgba(5, 125, 250, 0.5)";
+            context.fillStyle = "rgba(5, 125, 250, 0.5)";
             context.fillRect($.position.x-($.size.w/2), $.position.y-($.size.h/2), $.size.w, $.size.h);
         };
 
@@ -147,7 +147,7 @@ void function(namespace) {
         }
 
         Player.prototype.draw = function (context) {
-            context.fillColor = "rgba(250, 125, 5, 0.5)";
+            context.fillStyle = "rgba(250, 125, 5, 0.5)";
             context.fillRect($.position.x, $.position.y, $.size.w, $.size.h);
         };
 
@@ -185,7 +185,7 @@ void function(namespace) {
         Text.prototype.draw = function (context) {
             let l = context.measureText($.s);
             context.font = $.font;
-            context.fillColor = "rgba(255, 0, 0, 1.0)";
+            context.fillStyle = "rgba(255, 0, 0, 0.5)";
             context.fillText($.s, $.position.x - (l.width/2), $.position.y);
         };
 

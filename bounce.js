@@ -5,194 +5,173 @@ let ns;
 void function(namespace) {
 
     let Game = (function () {
-        let $ = {};
-
-        function paint() {
-            $.context.clearRect(0, 0, $.canvas.width, $.canvas.height);
-            $.ball.draw($.context);
-            $.player.draw($.context);
-            $.text.draw($.context); 
-        };
 
         function Game(canvas) {
-            $.canvas = canvas;
-            $.context = canvas.getContext("2d");
-            $.running = false;
-            $.timeout = null;
-            $.counter = 0;
+            this.canvas = canvas;
+            this.context = canvas.getContext("2d");
+            this.running = false;
+            this.timeout = null;
+            this.counter = 0;
         }
 
         Game.prototype.input = function (keyCode) {
-            if (!$.running) return;
+            if (!this.running) return;
             switch (keyCode) {
                 case 38:
-                    $.player.move({i:0, j:$.player.size().h/2});
+                    this.player.move({i:0, j:this.player.size.h/2});
                     break;
                 case 40:
-                    $.player.move({i:0, j:-$.player.size().h/2});
+                    this.player.move({i:0, j:-this.player.size.h/2});
                     break;
             }
         };
 
+        Game.prototype.paint = function () {
+            this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
+            this.ball.draw(this.context);
+            this.player.draw(this.context);
+            this.text.draw(this.context);
+        };
+
         Game.prototype.scored = function () {
-            return $.ball.position().x < $.player.position().x && 
-                ($.ball.position().y < $.player.position().y || $.ball.position().y > $.player.position().y + $.player.size().h);
+            return this.ball.position.x < this.player.position.x &&
+                (this.ball.position.y < this.player.position.y || this.ball.position.y > this.player.position.y + this.player.size.h);
         };
 
         Game.prototype.start = function () {
             const REFRESH_RATE = 1000/60;
 
-            if ($.running) return;
+            if (this.running) return;
 
-            $.ball = new Ball({x: $.canvas.width/2, y: $.canvas.height/2}, {w: 10, h: 10}, {x: $.canvas.width, y: $.canvas.height});
-            $.player = new Player({x: 0, y: ($.canvas.height - 100)/2}, {w: 10, h: 100}, {x: $.canvas.width, y: $.canvas.height});
-            $.text = new Text($.counter.toString(), "36px arial", {x:$.canvas.width/2, y:50});
+            this.ball = new Ball({x: this.canvas.width/2, y: this.canvas.height/2}, {w: 10, h: 10}, {x: this.canvas.width, y: this.canvas.height});
+            this.player = new Player({x: 0, y: (this.canvas.height - 100)/2}, {w: 10, h: 100}, {x: this.canvas.width, y: this.canvas.height});
+            this.text = new Text(this.counter.toString(), "36px arial", {x:this.canvas.width/2, y:50});
 
 
-            // prevent multiple timeout handlers from running at the same
-            // time and causing the ball to move faster and faster at each
-            // turn
-            if ($.timeout) {
-                clearTimeout($.timeout);
+			// prevent multiple timeout handlers from running at the same time
+			// and from causing the ball to move faster and faster at each turn
+            if (this.timeout) {
+                clearTimeout(this.timeout);
             }
 
             let f = function () {
                 this.update();
-                $.timeout = setTimeout(f, REFRESH_RATE);
+				if (this.running) this.timeout = setTimeout(f, REFRESH_RATE);
             }.bind(this);
-            $.timeout = setTimeout(f, REFRESH_RATE);
+            this.timeout = setTimeout(f, REFRESH_RATE);
 
-            $.ball.launch();
-            $.running = true;
+            this.ball.launch();
+            this.running = true;
         };
 
         Game.prototype.stop = function () {
-            $.ball.stop();
-            $.running = false;
+            this.ball.stop();
+            this.running = false;
         };
 
         Game.prototype.update = function () {
-            $.ball.update();
+            this.ball.update();
             if (this.scored()) {
                 this.stop();
             } else {
-                $.text.update($.ball.bounces().toString());
+                this.text.update(this.ball.bounces.toString());
             }
-            paint();
+            this.paint();
         };
 
         return Game;
     })();
 
     let Ball = (function () {
-        let $ = {};
 
         function Ball(position, size, bounds) {
-            $.position = position;
-            $.size = size;
-            $.bounds = bounds;
-            $.velocity = {i: 0, j: 0};
-            $.bounces = 0;
+            this.position = position;
+            this.size = size;
+            this.bounds = bounds;
+            this.velocity = {i: 0, j: 0};
+            this.bounces = 0;
         }
-
-        Ball.prototype.bounces = function () {
-            return $.bounces;
-        };
 
         Ball.prototype.draw = function (context) {
             context.fillStyle = "rgba(5, 125, 250, 0.5)";
-            context.fillRect($.position.x - ($.size.w/2), $.position.y - ($.size.h/2), $.size.w, $.size.h);
+            context.fillRect(this.position.x - (this.size.w/2), this.position.y - (this.size.h/2), this.size.w, this.size.h);
         };
 
         Ball.prototype.launch = function () {
             function r() {
                 return Math.ceil(2 + (Math.random() * 8));
             }
-            $.velocity = {i: r(), j: r()};
-            $.bounces = 0;
+            this.velocity = {i: r(), j: r()};
+            this.bounces = 0;
         };
 
         Ball.prototype.position = function () {
-            return $.position;
+            return this.position;
         };
 
         Ball.prototype.stop = function () {
-            $.velocity = {i: 0, j: 0};
+            this.velocity = {i: 0, j: 0};
         };
 
         Ball.prototype.update = function () {
-            $.position = {x: $.position.x + $.velocity.i, y: $.position.y + $.velocity.j};
-            if ($.position.x < 0 || $.position.x > $.bounds.x) {
-                $.velocity.i = -$.velocity.i;
-                $.bounces++;
+            this.position = {x: this.position.x + this.velocity.i, y: this.position.y + this.velocity.j};
+            if (this.position.x < 0 || this.position.x > this.bounds.x) {
+                this.velocity.i = -this.velocity.i;
+                this.bounces++;
             }
-            if ($.position.y < 0 || $.position.y > $.bounds.y) {
-                $.velocity.j = -$.velocity.j;
-                $.bounces++;
+            if (this.position.y < 0 || this.position.y > this.bounds.y) {
+                this.velocity.j = -this.velocity.j;
+                this.bounces++;
             }
-        };
-
-        Ball.prototype.size = function () {
-            return $.size;
         };
 
         return Ball;
     })();
 
     let Player = (function () {
-        let $ = {};
 
         function Player(position, size, bounds) {
-            $.position = position;
-            $.size = size;
-            $.bounds = bounds;
+            this.position = position;
+            this.size = size;
+            this.bounds = bounds;
         }
 
         Player.prototype.draw = function (context) {
             context.fillStyle = "rgba(250, 125, 5, 0.5)";
-            context.fillRect($.position.x, $.position.y, $.size.w, $.size.h);
+            context.fillRect(this.position.x, this.position.y, this.size.w, this.size.h);
         };
 
         Player.prototype.move = function (velocity) {
-            $.position.x = $.position.x;
-            $.position.y = $.position.y - velocity.j;
-            if ($.position.y < 0) {
-                $.position.y = 0;
+            this.position.x = this.position.x;
+            this.position.y = this.position.y - velocity.j;
+            if (this.position.y < 0) {
+                this.position.y = 0;
             }
-            if ($.position.y > $.bounds.y - $.size.h) {
-                $.position.y = $.bounds.y - $.size.h;
+            if (this.position.y > this.bounds.y - this.size.h) {
+                this.position.y = this.bounds.y - this.size.h;
             }
-        };
-
-        Player.prototype.position = function () {
-            return $.position;
-        };
-
-        Player.prototype.size = function () {
-            return $.size;
         };
 
         return Player;
     })();
 
     let Text = (function () {
-        let $ = {};
 
         function Text(s, font, position) {
-            $.s = s;
-            $.font = font;
-            $.position = position;
+            this.s = s;
+            this.font = font;
+            this.position = position;
         }
 
         Text.prototype.draw = function (context) {
-            let m = context.measureText($.s);
-            context.font = $.font;
+            let m = context.measureText(this.s);
+            context.font = this.font;
             context.fillStyle = "rgba(255, 0, 0, 0.5)";
-            context.fillText($.s, $.position.x - (m.width/2), $.position.y);
+            context.fillText(this.s, this.position.x - (m.width/2), this.position.y);
         };
 
         Text.prototype.update = function (s) {
-            $.s = s;
+            this.s = s;
         };
 
         return Text;
